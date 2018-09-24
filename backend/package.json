@@ -1,0 +1,25 @@
+{
+  "name": "mysql-homework",
+  "version": "1.0.0",
+  "description": "MySQL homework for CMPE-273",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bargemb/cmpe-273-mysql-homework.git"
+  },
+  "keywords": [
+    "mysql",
+    "nodejs",
+    "express",
+    "react"
+  ],
+  "author": "Mayur Barge",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bargemb/cmpe-273-mysql-homework/issues"
+  },
+  "homepage": "https://github.com/bargemb/cmpe-273-mysql-homework#readme"
+}
