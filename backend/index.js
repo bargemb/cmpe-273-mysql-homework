@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var cors = require('cors');
 
 var mysql = require('mysql');
+var pool = require('./pool');
 
 //use cors to allow cross origin resource sharing
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
@@ -23,18 +24,6 @@ app.use(session({
 
 app.use(bodyParser.json());
 
-var con = mysql.createConnection({
-    host: "localhost",
-    user: "homework",
-    password: "Sanjose#18",
-    database : "mysql-homework"
-});
-
-con.connect(function(err) {
-    if (err)
-        throw err;
-    console.log("Connected!");
-});
 
 //Allow Access Control
 app.use(function(req, res, next) {
@@ -53,29 +42,38 @@ app.post('/login',function(req,res){
     var password = req.body.password;
     var sql = "SELECT *  FROM creds WHERE username = " +
         mysql.escape(username) + " and password = " + mysql.escape(password);
-    console.log(sql);
-    con.query(sql,function(err,result){
+
+    pool.getConnection(function(err,con){
         if(err){
-            console.log("MySQL connection issue");
-            res.writeHead(400,{
+            res.writeHead(503,{
                 'Content-Type' : 'text/plain'
             })
-            res.end("MySQL connection issue");
-        }else if (result.length > 0){
-            console.log("success");
-            res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-            req.session.user = result;
-            res.writeHead(200,{
-                'Content-Type' : 'text/plain'
-            })
-            res.end("Successful Login");
-        }
-        else {
-            console.log("Invalid credentials");
-            res.writeHead(400,{
-                'Content-Type' : 'text/plain'
-            })
-            res.end("Invalid credentials");
+            res.end("Could Not Get Connection Object");
+        }else{
+            con.query(sql,function(err,result){
+                if(err){
+                    console.log("MySQL connection issue");
+                    res.writeHead(503,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("MySQL connection issue");
+                }else if (result.length > 0){
+                    console.log("Successful Login");
+                    res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+                    req.session.user = result;
+                    res.writeHead(200,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("Successful Login");
+                }
+                else {
+                    console.log("Invalid credentials");
+                    res.writeHead(401,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("Invalid credentials");
+                }
+            });
         }
     });
 });
@@ -83,64 +81,93 @@ app.post('/login',function(req,res){
 //Route to get All Students when user visits the Home Page
 app.get('/home', function(req,res){
     var sql = "SELECT * FROM students";
-    con.query(sql,function(err, result){
+    pool.getConnection(function(err,con){
         if(err){
-            console.log(err);
             res.writeHead(400,{
                 'Content-Type' : 'text/plain'
             })
-            res.end("Error while retrieving Student Details");
+            res.end("Could Not Get Connection Object");
         }else{
-            res.writeHead(200,{
-                'Content-Type' : 'application/json'
-            })
-            res.end(JSON.stringify(result));
+            con.query(sql,function(err, result){
+                if(err){
+                    console.log(err);
+                    res.writeHead(400,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("Error while retrieving Student Details");
+                }else{
+                    res.writeHead(200,{
+                        'Content-Type' : 'application/json'
+                    })
+                    res.end(JSON.stringify(result));
+                    console.log(JSON.stringify(result));
+                }
+            });
         }
     });
-
 })
 
 app.delete('/delete/:id',function(req,res){
     console.log("Inside Delete Request");
     console.log("Student to Delete : ", req.params.id)
     var sql = "DELETE FROM students WHERE id = " + mysql.escape(req.params.id);
-    con.query(sql,function(err,result){
+    pool.getConnection(function(err,con){
         if(err){
             res.writeHead(400,{
                 'Content-Type' : 'text/plain'
             })
-            res.end("Error Deleting Student");
+            res.end("Could Not Get Connection Object");
         }else{
-            res.writeHead(200,{
-                'Content-Type' : 'text/plain'
-            })
-            res.end("Student Deleted Successfully");
+            con.query(sql,function(err,result){
+                if(err){
+                    console.log("Error Deleting Student");
+                    res.writeHead(400,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("Error Deleting Student");
+                }else{
+                    console.log("Student Deleted Successfully");
+                    res.writeHead(200,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("Student Deleted Successfully");
+                }
+            });
         }
-    })
+    });
 });
 
 app.post('/create',function(req,res){
     console.log("Inside add Request Handler");
     var sql = "INSERT INTO students VALUES ( " +
-        mysql.escape(req.body.studentID) + " , " + mysql.escape(req.body.name) + " , "+
-        mysql.escape(req.body.department) + " ) ";
-    console.log(sql);
-    con.query(sql,function(err,result){
+    mysql.escape(req.body.studentID) + " , " + mysql.escape(req.body.name) + " , "+
+    mysql.escape(req.body.department) + " ) ";
+    pool.getConnection(function(err,con){
         if(err){
-            console.log("error");
-            console.log(result);
             res.writeHead(400,{
                 'Content-Type' : 'text/plain'
             })
-            res.end("Error While Adding Student");
+            res.end("Could Not Get Connection Object");
         }else{
-            console.log("success");
-            res.writeHead(200,{
-                'Content-Type' : 'text/plain'
-            })
-            res.end('Student Added Successfully');
+            con.query(sql,function(err,result){
+                if(err){
+                    console.log("Error While Adding Student");
+                    console.log(result);
+                    res.writeHead(400,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end("Error While Adding Student");
+                }else{
+                    console.log("Student Added Successfully");
+                    res.writeHead(200,{
+                        'Content-Type' : 'text/plain'
+                    })
+                    res.end('Student Added Successfully');
+                }
+            });
         }
     });
+
 });
 //start your server on port 3001
 app.listen(3001);

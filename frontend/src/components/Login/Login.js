@@ -79,6 +79,12 @@ class Login extends Component{
                             authFlag : false
                         })
                     }
+                })
+                .catch(onerror => {
+                    if (onerror.response.status === 401){
+                        document.getElementById('requiredError').textContent = "Invalid Credentials";
+                    }
+                    console.log(onerror.response);
                 });
         }
     }
@@ -103,15 +109,11 @@ class Login extends Component{
 
                             <div className="form-group">
                                 <input onChange = {this.usernameChangeHandler} type="text" className="form-control"
-                                       name="username" placeholder="Username" required={true}
-                                       oninvalid="this.setCustomValidity('Please enter username')"
-                                       oninput="this.setCustomValidity('')"/>
+                                       name="username" placeholder="Username" required={true}/>
                             </div>
                             <div className="form-group">
                                 <input onChange = {this.passwordChangeHandler} type="password" className="form-control"
-                                       name="password" placeholder="Password" required={true}
-                                       oninvalid="this.setCustomValidity('Please enter password')"
-                                       oninput="this.setCustomValidity('')"/>
+                                       name="password" placeholder="Password" required={true}/>
                             </div>
                             <button onClick = {this.submitLogin} className="btn btn-primary">Login</button>
                             <div className="error" id="requiredError" />

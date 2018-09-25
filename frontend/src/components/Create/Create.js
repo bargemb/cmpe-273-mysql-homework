@@ -36,24 +36,40 @@ class Create extends Component{
         })
     }
 
-    handleStudentAdd = (e) => {
-        var data = {
-            studentID : this.state.studentID,
-            name : this.state.name,
-            department : this.state.department
+    validateForm() {
+        const inputs = document.querySelectorAll('input');
+        const error = document.getElementById('requiredError');
+        let isFormValid = true;
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].value === ""){
+                error.textContent = inputs[i].placeholder + " is required field";
+                isFormValid = false;
+                break;
+            }
         }
-        axios.post('http://localhost:3001/create',data)
-            .then(response => {
-                if(response.status === 200){
-                    this.setState({
-                        studentAdded : true
-                    })
-                }else{
-                    this.setState({
-                        studentAdded : false
-                    })
-                }
-            })
+        return isFormValid;
+    }
+
+    handleStudentAdd = (e) => {
+        if (this.validateForm()) {
+            var data = {
+                studentID : this.state.studentID,
+                name : this.state.name,
+                department : this.state.department
+            }
+            axios.post('http://localhost:3001/create',data)
+                .then(response => {
+                    if(response.status === 200){
+                        this.setState({
+                            studentAdded : true
+                        })
+                    }else{
+                        this.setState({
+                            studentAdded : false
+                        })
+                    }
+            });
+        }
     }
 
     render(){
@@ -67,20 +83,24 @@ class Create extends Component{
                 <br/>
                 <div class="container">
                     <div style={{width: '30%'}} class="form-group">
-                        <input onChange = {this.handleChangeStudentID} type="text" class="form-control" name="StudentID" placeholder="Student ID"/>
+                        <input onChange = {this.handleChangeStudentID} type="number" class="form-control"
+                               name="StudentID" placeholder="Student ID"/>
                     </div>
                     <br/>
                     <div style={{width: '30%'}} class="form-group">
-                        <input onChange = {this.handleChangeStudentName} type="text" class="form-control" name="StudentName" placeholder="Student Name"/>
+                        <input onChange = {this.handleChangeStudentName} type="text" class="form-control"
+                               name="StudentName" placeholder="Student Name"/>
                     </div>
                     <br/>
                     <div style={{width: '30%'}} class="form-group">
-                        <input onChange = {this.handleChangeDepartment} type="text" class="form-control" name="Department" placeholder="Department"/>
+                        <input onChange = {this.handleChangeDepartment} type="text" class="form-control"
+                               name="Department" placeholder="Department"/>
                     </div>
                     <br/>
                     <div style={{width: '30%'}}>
                         <button onClick = {this.handleStudentAdd} class="btn btn-success" type="submit">Add</button>
                     </div>
+                    <div className="error" id="requiredError" />
                 </div>
             </div>
         )
