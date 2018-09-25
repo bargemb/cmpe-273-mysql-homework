@@ -4,7 +4,8 @@
   "description": "MySQL homework for CMPE-273",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -16,10 +17,19 @@
     "express",
     "react"
   ],
-  "author": "Mayur Barge",
+  "department": "Mayur Barge",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bargemb/cmpe-273-mysql-homework/issues"
   },
-  "homepage": "https://github.com/bargemb/cmpe-273-mysql-homework#readme"
+  "homepage": "https://github.com/bargemb/cmpe-273-mysql-homework#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "mysql": "^2.16.0",
+    "nodemon": "^1.18.4"
+  }
 }
